@@ -4,8 +4,10 @@
 package app
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 )
@@ -33,4 +35,10 @@ func TestCheckIfRolesGrantPermission(t *testing.T) {
 		assert.Equal(t, th.App.RolesGrantPermission(testcase.roles, testcase.permissionId), testcase.shouldGrant)
 	}
 
+}
+
+func TestChannelRolesGrantPermission(t *testing.T) {
+	testPermissionInheritance(t, func(t *testing.T, th *TestHelper, testData permissionInheritanceTestData) {
+		require.Equal(t, testData.shouldHavePermission, th.App.ChannelRolesGrantPermission([]string{testData.channelRole.Name}, testData.permission.Id, testData.channel.Id))
+	})
 }
