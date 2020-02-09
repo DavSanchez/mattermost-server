@@ -89,6 +89,11 @@ type ChannelModeration struct {
 	Roles map[string]map[string]bool `json:"roles"`
 }
 
+type ChannelModerationPatch struct {
+	Name  *string         `json:"name"`
+	Roles map[string]bool `json:"roles"`
+}
+
 // ChannelSearchOpts contains options for searching channels.
 //
 // NotAssociatedToGroup will exclude channels that have associated, active GroupChannels records.
@@ -151,6 +156,12 @@ func ChannelPatchFromJson(data io.Reader) *ChannelPatch {
 
 func ChannelModerationsFromJson(data io.Reader) []*ChannelModeration {
 	var o []*ChannelModeration
+	json.NewDecoder(data).Decode(&o)
+	return o
+}
+
+func ChannelModerationsPatchFromJson(data io.Reader) []*ChannelModerationPatch {
+	var o []*ChannelModerationPatch
 	json.NewDecoder(data).Decode(&o)
 	return o
 }
