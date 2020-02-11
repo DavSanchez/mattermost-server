@@ -4,7 +4,6 @@
 package model
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -178,9 +177,6 @@ func TestRolePatchFromChannelModerationsPatch(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			baseRole := &Role{Permissions: tc.Permissions}
 			rolePatch := baseRole.RolePatchFromChannelModerationsPatch(tc.ChannelModerationsPatch, tc.RoleName)
-			fmt.Println(tc.Name)
-			fmt.Println(tc.ExpectedPatchPermissions)
-			fmt.Println(rolePatch.Permissions)
 			assert.ElementsMatch(t, tc.ExpectedPatchPermissions, *rolePatch.Permissions)
 		})
 	}
