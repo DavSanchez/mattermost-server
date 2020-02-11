@@ -764,10 +764,10 @@ func (a *App) PatchChannelModerationsForChannel(channel *model.Channel, channelM
 	inheritedGuestPermissions := GetChannelModeratedPermissions(inheritedGuestRole.Permissions)
 
 	for _, moderationPatch := range channelModerationsPatch {
-		if moderationPatch.Roles["members"] && !inheritedMemberPermissions[*moderationPatch.Name] {
+		if moderationPatch.Roles.Members != nil && *moderationPatch.Roles.Members && !inheritedMemberPermissions[*moderationPatch.Name] {
 			return nil, &model.AppError{Message: "Cannot add a permission that is restricted by the team or system permission scheme"}
 		}
-		if moderationPatch.Roles["guests"] && !inheritedGuestPermissions[*moderationPatch.Name] {
+		if moderationPatch.Roles.Guests != nil && *moderationPatch.Roles.Guests && !inheritedGuestPermissions[*moderationPatch.Name] {
 			return nil, &model.AppError{Message: "Cannot add a permission that is restricted by the team or system permission scheme"}
 		}
 	}
@@ -825,24 +825,20 @@ func buildChannelModerations(memberRole *model.Role, guestRole *model.Role, inhe
 	inheritedGuestPermissions := GetChannelModeratedPermissions(inheritedGuestRole.Permissions)
 
 	var channelModerations []*model.ChannelModeration
-	existingModerations := make(map[string]bool)
 	for _, permissionKey := range model.CHANNEL_MODERATED_PERMISSIONS {
-		// Certain moderations have more than one associated permissions skip any extra permissions as they are assumed to all have the same value.
-		if existingModerations[permissionKey] {
-			continue
+		roles := &model.ChannelModeratedRoles{}
+
+		roles.Members = &model.ChannelModeratedRole{
+			Value:   memberPermissions[permissionKey],
+			Enabled: inheritedMemberPermissions[permissionKey],
 		}
 
-		roles := make(map[string]map[string]bool)
-
-		roles["members"] = map[string]bool{
-			"value":   memberPermissions[permissionKey],
-			"enabled": inheritedMemberPermissions[permissionKey],
-		}
-
-		if permissionKey != "manage_members" {
-			roles["guests"] = map[string]bool{
-				"value":   guestPermissions[permissionKey],
-				"enabled": inheritedGuestPermissions[permissionKey],
+		if permissionKey == "manage_members" {
+			roles.Guests = nil
+		} else {
+			roles.Guests = &model.ChannelModeratedRole{
+				Value:   guestPermissions[permissionKey],
+				Enabled: inheritedGuestPermissions[permissionKey],
 			}
 		}
 
@@ -852,7 +848,6 @@ func buildChannelModerations(memberRole *model.Role, guestRole *model.Role, inhe
 		}
 
 		channelModerations = append(channelModerations, moderation)
-		existingModerations[permissionKey] = true
 	}
 
 	return channelModerations

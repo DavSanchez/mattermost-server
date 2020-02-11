@@ -85,13 +85,28 @@ type DirectChannelForExport struct {
 }
 
 type ChannelModeration struct {
-	Name  string                     `json:"name"`
-	Roles map[string]map[string]bool `json:"roles"`
+	Name  string                 `json:"name"`
+	Roles *ChannelModeratedRoles `json:"roles"`
+}
+
+type ChannelModeratedRoles struct {
+	Guests  *ChannelModeratedRole `json:"guests"`
+	Members *ChannelModeratedRole `json:"members"`
+}
+
+type ChannelModeratedRole struct {
+	Value   bool `json:"value"`
+	Enabled bool `json:"enabled"`
 }
 
 type ChannelModerationPatch struct {
-	Name  *string         `json:"name"`
-	Roles map[string]bool `json:"roles"`
+	Name  *string                     `json:"name"`
+	Roles *ChannelModeratedRolesPatch `json:"roles"`
+}
+
+type ChannelModeratedRolesPatch struct {
+	Guests  *bool `json:"guests"`
+	Members *bool `json:"members"`
 }
 
 // ChannelSearchOpts contains options for searching channels.
